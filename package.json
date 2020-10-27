@@ -1,0 +1,26 @@
+{
+  "name": "with-mdx",
+  "version": "1.0.1",
+  "scripts": {
+    "dev": "next",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@chakra-ui/core": "^1.0.0-rc.5",
+    "@emotion/core": "^10.0.35",
+    "@emotion/styled": "^10.0.27",
+    "@mdx-js/loader": "^1.5.1",
+    "@next/mdx": "^9.1.1",
+    "chroma-js": "^2.1.0",
+    "emotion": "^10.0.27",
+    "emotion-theming": "^10.0.27",
+    "next": "latest",
+    "react": "^16.14.0",
+    "react-copy-to-clipboard": "^5.0.2",
+    "react-dom": "^16.8.6",
+    "react-icons": "^3.11.0",
+    "styled-components": "^5.2.0"
+  },
+  "license": "MIT"
+}
