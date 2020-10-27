@@ -1,21 +1,17 @@
-# Example app with MDX
+# Yet another color scale generator
 
-This example shows using [MDX](https://github.com/mdx-js/mdx) as top level pages for your next.js app.
+This time, color scales are generated based on the contrast between color variants. The contrast value calculated is using the WCAG formula based on relative luminance, which makes it easy to generate colors that pass specific contrast ratios within a scale.
 
-## Deploy your own
+## Built on next js with MDX
 
-Deploy the example using [Vercel](https://vercel.com):
+The MDX is superfluous, but is great for creating documentation as the tool evolves.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/import/project?template=https://github.com/vercel/next.js/tree/canary/examples/with-mdx)
+## Whats powering this thing
 
-## How to use
+[Chroma js](https://gka.github.io/chroma.js) is a big part of this tool. It provides all the color functions to calculate luminance and generate color scales.
 
-Execute [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [npm](https://docs.npmjs.com/cli/init) or [Yarn](https://yarnpkg.com/lang/en/docs/cli/create/) to bootstrap the example:
+[Chakra ui](https://next.chakra-ui.com/) provides the ui components.
 
-```bash
-npx create-next-app --example with-mdx with-mdx-app
-# or
-yarn create next-app --example with-mdx with-mdx-app
-```
+## Try it out
 
-Deploy it to the cloud with [Vercel](https://vercel.com/import?filter=next.js&utm_source=github&utm_medium=readme&utm_campaign=next-example) ([Documentation](https://nextjs.org/docs/deployment)).
+This tool is not yet deployed, in the meantime, you can try it out by cloning this repo and running `npm run dev`
