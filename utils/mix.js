@@ -1,9 +1,6 @@
 import chroma from "chroma-js";
 
 const mix = (data) => {
-  console.log("mix: ", data);
-  let mix = "#ff0000";
-
   switch (data.type) {
     case "chroma":
       return chroma(data.parameters).hex();

@@ -1,5 +1,5 @@
 import { Slider } from "../components/Slider";
-import { addSwatch, useStateValue } from "../utils/state";
+import { useStateValue } from "../utils/state";
 import {
   Flex,
   Button,
@@ -18,7 +18,6 @@ import mix from "../utils/mix";
 
 const CubehelixChromajs = () => {
   const [state, dispatch] = useStateValue();
-  console.log(state.swatches);
   return (
     <Box maxW="1000px" w="100%" mx="auto" px={4}>
       <VStack align="start" mx={-4} mt={16} px={4}>

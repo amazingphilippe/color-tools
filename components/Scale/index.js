@@ -1,35 +1,24 @@
 import {
-  Box,
-  Text,
-  HStack,
   Input,
   VStack,
   InputGroup,
   InputRightAddon,
-  Flex,
-  Badge,
+  FormControl,
+  FormLabel,
 } from "@chakra-ui/core";
-import mix from "../../utils/mix";
 import { useStateValue } from "../../utils/state";
-import Swatch from "../Swatch";
 import chroma from "chroma-js";
+import merge from "deepmerge";
 
-export const Scale = (props) => {
-  const [state, dispatch] = useStateValue();
+export const makeScale = (parameters, base) => {
+  //console.log("check: ", parameters, base);
 
-  //Loop for ammount darker
-  //Original color
-  //Loop for ammount lighter
+  const darker = [base];
+  const lighter = [base];
 
-  const darker = [
-    mix({ type: "cubehelix", parameters: { ...state.swatches[props.seed] } }),
-  ];
-  const lighter = [
-    mix({ type: "cubehelix", parameters: { ...state.swatches[props.seed] } }),
-  ];
-  const contrast = state.scales[props.seed].contrast;
+  const contrast = parameters.contrast;
 
-  for (let i = 0; i < state.scales[props.seed].dark; i++) {
+  for (let i = 0; i < parameters.dark; i++) {
     let luminance = chroma(darker[0]).luminance();
     let reachContrast = (luminance + 0.05) / contrast - 0.0501;
     //normally 0.05, 0.0501 is used to ensure results get rounded to a passing criteria
@@ -38,7 +27,7 @@ export const Scale = (props) => {
     darker.unshift(scaleColor);
   }
 
-  for (let i = 0; i < state.scales[props.seed].light; i++) {
+  for (let i = 0; i < parameters.light; i++) {
     let luminance = chroma(lighter[0]).luminance();
     let reachContrast = contrast * (luminance + 0.05) - 0.0499;
     //normally 0.05, 0.0499 is used to ensure results get rounded to a passing criteria
@@ -51,91 +40,68 @@ export const Scale = (props) => {
 
   const scale = darker.concat(lighter);
 
+  return scale;
+};
+
+export const Scale = (props) => {
+  const [state, dispatch] = useStateValue();
+
   const handleChangeValue = (e, parameter) => {
+    let newParameters = { [parameter]: e.target.value };
+
+    let scale = makeScale(
+      merge(state[props.swatch].scale.parameters, newParameters),
+      state[props.swatch].hex
+    );
+
     let newScale = {
-      [props.seed]: {
-        ...state.scales[props.seed],
-        ...{ [parameter]: e.target.value },
+      scale: {
+        hex: scale,
+        parameters: newParameters,
       },
     };
-    console.log("changeScale: ", newScale);
+
     dispatch({
       type: "changeValue",
-      data: { scales: { ...state.scales, ...newScale } },
+      data: { [props.swatch]: newScale },
     });
   };
 
   return (
     <VStack align="start">
-      <HStack align="end">
-        <label htmlFor="ammount-lighter">
-          <Text lineHeight={1.25} fontWeight="bold">
-            Ammount darker
-          </Text>
+      <FormControl id={`${props.swatch}-contrast`}>
+        <FormLabel>Minimum contrast step</FormLabel>
+        <InputGroup>
           <Input
             type="number"
-            defaultValue="1"
-            id="ammount-darker"
-            onChange={(e) => handleChangeValue(e, "dark")}
+            value={state[props.swatch].scale.parameters.contrast}
+            step="any"
+            onChange={(e) => handleChangeValue(e, "contrast")}
+            min={1}
+            max={21}
+            w={20}
           />
-        </label>
-        <label htmlFor="ammount-lighter">
-          <Text lineHeight={1.25} fontWeight="bold">
-            Ammount lighter
-          </Text>
-          <Input
-            type="number"
-            defaultValue="2"
-            id="ammount-lighter"
-            onChange={(e) => handleChangeValue(e, "light")}
-          />
-        </label>
-        <label htmlFor="ammount-lighter">
-          <Text lineHeight={1.25} fontWeight="bold">
-            Minimum contrast step
-          </Text>
-          <InputGroup>
-            <Input
-              type="number"
-              defaultValue="3"
-              id="step"
-              step="any"
-              onChange={(e) => handleChangeValue(e, "contrast")}
-            />
-            <InputRightAddon>:1</InputRightAddon>
-          </InputGroup>
-        </label>
-      </HStack>
-      <HStack spacing={0}>
-        {scale.map((item, key) => {
-          let calcContrast = null;
-          key < scale.length - 1 &&
-            (calcContrast = chroma.contrast(item, scale[key + 1]).toFixed(2));
-
-          return (
-            <>
-              <Swatch color={item} key={key} />
-              {calcContrast !== null && (
-                <Badge
-                  colorScheme={calcContrast >= contrast ? "gray" : "red"}
-                  w={10}
-                  d="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                  alignSelf="start"
-                  mx={-10}
-                  pos="relative"
-                  left={-5}
-                  top={5}
-                  zIndex="9"
-                >
-                  {calcContrast}
-                </Badge>
-              )}
-            </>
-          );
-        })}
-      </HStack>
+          <InputRightAddon w={8}>:1</InputRightAddon>
+        </InputGroup>
+      </FormControl>
+      <FormControl id={`${props.swatch}-dark`}>
+        <FormLabel>Ammount darker</FormLabel>
+        <Input
+          type="number"
+          value={state[props.swatch].scale.parameters.dark}
+          onChange={(e) => handleChangeValue(e, "dark")}
+          w={20}
+        />
+      </FormControl>
+      <FormControl id={`${props.swatch}-light`}>
+        <FormLabel>Ammount lighter</FormLabel>
+        <Input
+          type="number"
+          value={state[props.swatch].scale.parameters.light}
+          onChange={(e) => handleChangeValue(e, "light")}
+          w={20}
+        />
+      </FormControl>
     </VStack>
   );
 };

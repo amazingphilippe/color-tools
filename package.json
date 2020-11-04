@@ -13,6 +13,7 @@
     "@mdx-js/loader": "^1.5.1",
     "@next/mdx": "^9.1.1",
     "chroma-js": "^2.1.0",
+    "deepmerge": "^4.2.2",
     "emotion": "^10.0.27",
     "emotion-theming": "^10.0.27",
     "next": "latest",
