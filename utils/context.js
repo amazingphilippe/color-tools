@@ -14,7 +14,7 @@ export const useContextValue = () => useContext(Context);
 export const initialContext = {
   onLight: "#FFFFFF",
   onDark: "#000000",
-  colorSpace: "hcl",
+  colorSpace: "lch",
   showContrastTests: true,
 };
 

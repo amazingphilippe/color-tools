@@ -19,8 +19,18 @@ const swatchModel = {
   hex: "#26374a",
   values: { h: 266.19, c: 13.87, l: 22.43 },
   scale: {
-    hex: ["#000000", "#26374a", "#757f8c", "#dbdee1"],
-    parameters: { dark: 1, light: 2, contrast: 3 },
+    hex: [
+      "#141d27",
+      "#26374a",
+      "#3e4d5e",
+      "#556372",
+      "#6e7a87",
+      "#89939d",
+      "#a7afb6",
+      "#c9ced2",
+      "#eff1f2",
+    ],
+    parameters: { dark: 1, light: 7, contrast: 1.4 },
   },
 };
 
@@ -34,7 +44,6 @@ export const initialState = {
 };
 
 export const colorSpaces = {
-  hex: [[null, null]],
   hcl: [
     [0, 360],
     [0, 140],

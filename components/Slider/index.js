@@ -15,11 +15,13 @@ import {
   Box,
 } from "@chakra-ui/core";
 import { makeScale } from "../Scale";
+import { useContextValue } from "../../utils/context";
 
 export const Slider = (props) => {
   const [state, dispatch] = useStateValue();
+  const [context] = useContextValue();
 
-  const mode = props.mode.join("");
+  const mode = context.colorSpace.split("");
 
   let values = state[props.swatch].values;
 
@@ -58,7 +60,11 @@ export const Slider = (props) => {
 
     let newHex = chroma(newValues).hex();
 
-    let scale = makeScale(state[props.swatch].scale.parameters, newHex);
+    let scale = makeScale(
+      state[props.swatch].scale.parameters,
+      newHex,
+      context
+    );
 
     let newScale = {
       scale: {
@@ -82,13 +88,14 @@ export const Slider = (props) => {
     <VStack>
       <FormControl id={`${props.swatch}-${mode}-group`}>
         <FormLabel>{props.name}</FormLabel>
-        {props.mode.map((key, i) => {
+        {mode.map((key, i) => {
           return (
             <FormControl key={key} id={`${props.swatch}-${key}`}>
               <HStack spacing={0}>
                 <FormLabel>{key}</FormLabel>
                 <FormHelperText>
-                  {colorSpaces[mode][i][0]} - {colorSpaces[mode][i][1]}
+                  {colorSpaces[context.colorSpace][i][0]} -{" "}
+                  {colorSpaces[context.colorSpace][i][1]}
                 </FormHelperText>
               </HStack>
 
@@ -105,8 +112,8 @@ export const Slider = (props) => {
                     value={state[props.swatch].values[key]}
                     onChange={(val) => handleChangeValueSlider(key, val)}
                     step={0.01}
-                    min={colorSpaces[mode][i][0]}
-                    max={colorSpaces[mode][i][1]}
+                    min={colorSpaces[context.colorSpace][i][0]}
+                    max={colorSpaces[context.colorSpace][i][1]}
                     focusThumbOnChange={false}
                   >
                     <SliderTrack>

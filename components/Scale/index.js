@@ -9,8 +9,9 @@ import {
 import { useStateValue } from "../../utils/state";
 import chroma from "chroma-js";
 import merge from "deepmerge";
+import { useContextValue } from "../../utils/context";
 
-export const makeScale = (parameters, base) => {
+export const makeScale = (parameters, base, context) => {
   //console.log("check: ", parameters, base);
 
   const darker = [base];
@@ -20,18 +21,22 @@ export const makeScale = (parameters, base) => {
 
   for (let i = 0; i < parameters.dark; i++) {
     let luminance = chroma(darker[0]).luminance();
-    let reachContrast = (luminance + 0.05) / contrast - 0.0501;
+    let reachContrast = (luminance + 0.05) / contrast - 0.05;
     //normally 0.05, 0.0501 is used to ensure results get rounded to a passing criteria
-    let scaleColor = chroma(darker[0]).luminance(reachContrast).hex();
+    let scaleColor = chroma(darker[0])
+      .luminance(reachContrast, context.colorSpace)
+      .hex();
 
     darker.unshift(scaleColor);
   }
 
   for (let i = 0; i < parameters.light; i++) {
     let luminance = chroma(lighter[0]).luminance();
-    let reachContrast = contrast * (luminance + 0.05) - 0.0499;
+    let reachContrast = contrast * (luminance + 0.05) - 0.05;
     //normally 0.05, 0.0499 is used to ensure results get rounded to a passing criteria
-    let scaleColor = chroma(lighter[0]).luminance(reachContrast).hex();
+    let scaleColor = chroma(lighter[0])
+      .luminance(reachContrast, context.colorSpace)
+      .hex();
 
     lighter.unshift(scaleColor);
   }
@@ -45,13 +50,15 @@ export const makeScale = (parameters, base) => {
 
 export const Scale = (props) => {
   const [state, dispatch] = useStateValue();
+  const [context] = useContextValue();
 
   const handleChangeValue = (e, parameter) => {
     let newParameters = { [parameter]: e.target.value };
 
     let scale = makeScale(
       merge(state[props.swatch].scale.parameters, newParameters),
-      state[props.swatch].hex
+      state[props.swatch].hex,
+      context
     );
 
     let newScale = {

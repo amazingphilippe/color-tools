@@ -1,10 +1,15 @@
-import { useStateValue } from "../utils/state";
+import { colorSpaces, useStateValue } from "../utils/state";
 import { useContextValue } from "../utils/context";
 import chroma from "chroma-js";
 import { useState } from "react";
 import { makeScale, Scale } from "../components/Scale";
 import Swatch from "../components/Swatch";
-import { RiAddLine, RiDeleteBin2Line } from "react-icons/ri";
+import {
+  RiAddLine,
+  RiArrowDownSFill,
+  RiArrowDropDownFill,
+  RiDeleteBin2Line,
+} from "react-icons/ri";
 import { HexInput } from "../components/HexInput";
 
 const {
@@ -29,6 +34,7 @@ const {
   Editable,
   EditablePreview,
   EditableInput,
+  Select,
 } = require("@chakra-ui/core");
 const { Slider } = require("../components/Slider");
 
@@ -54,6 +60,13 @@ export const ContrastColorTool = () => {
     });
   };
 
+  const handleChangeColorSpace = (e) => {
+    contextDistpatch({
+      type: "changeValue",
+      data: { [e.target.id]: e.target.value },
+    });
+  };
+
   const handleChangeHex = (swatch, e) => {
     let newValues = state[swatch].values;
 
@@ -64,7 +77,7 @@ export const ContrastColorTool = () => {
 
     let newScale = chroma.valid(e.target.value) && {
       scale: {
-        hex: makeScale(state[swatch].scale.parameters, e.target.value),
+        hex: makeScale(state[swatch].scale.parameters, e.target.value, context),
       },
     };
 
@@ -77,7 +90,7 @@ export const ContrastColorTool = () => {
   };
 
   return (
-    <VStack align="start" spacing={4} mx="auto" bg="gray.200">
+    <VStack align="start" spacing={4} mx="auto" bg="gray.100">
       <VStack align="start" w="100%" p={4}>
         <Heading as="h1" size="xl">
           Color Design Scale (CDS)
@@ -120,12 +133,29 @@ export const ContrastColorTool = () => {
             </FormControl>
           </HStack>
         </FormControl>
+        <FormControl width="auto" id="colorSpace">
+          <FormLabel>Color Space</FormLabel>
+          <Select
+            defaultValue={context.colorSpace}
+            variant="outline"
+            icon={<RiArrowDownSFill />}
+            onChange={(e) => handleChangeColorSpace(e)}
+          >
+            {Object.keys(colorSpaces).map((key, i) => {
+              return (
+                <option key={key} value={key}>
+                  {key}
+                </option>
+              );
+            })}
+          </Select>
+        </FormControl>
       </VStack>
       <HStack alignSelf="stretch" spacing={0}>
         <Tabs
           variant="palette"
           width="75%"
-          bg="gray.200"
+          bg="gray.100"
           alignSelf="stretch"
           d="flex"
           flexDirection="column"
@@ -218,7 +248,7 @@ export const ContrastColorTool = () => {
         </Tabs>
         <Tabs
           width="25%"
-          bg="gray.200"
+          bg="gray.100"
           alignSelf="stretch"
           d="flex"
           flexDirection="column"
@@ -307,7 +337,7 @@ export const ContrastColorTool = () => {
                   <Slider
                     name="Hue-Chroma-Luminance"
                     swatch={controls}
-                    mode={["h", "c", "l"]}
+                    mode={colorSpaces[context.colorSpace]}
                   />
                 </Box>
               </VStack>
