@@ -10,26 +10,29 @@ import {
 } from "react-icons/ri";
 import { useStateValue } from "../../utils/state";
 import { CopyToClipboard } from "react-copy-to-clipboard";
-import { useContextValue } from "../../utils/context";
 
 const Swatch = (props) => {
   const [state] = useStateValue();
 
-  const [context] = useContextValue();
-
   const color = props.color;
 
   let calcContrast = 0;
+  // If the swatch is not the last one, check its contrast relative to the next color in the scale.
   props.index < props.scale.length - 1 &&
     (calcContrast = chroma.contrast(props.color, props.scale[props.index + 1]));
 
-  calcContrast = Number(calcContrast.toFixed(2));
+  // Fix the contrast to the nearest 1 decimal. Most WCAG tools only use a single decimal
+  // The "+" makes sure we get a number and not a string. Cleaner than calling Number() ?
+  calcContrast = +calcContrast.toFixed(1);
 
-  let clips = calcContrast < state[props.swatch].scale.parameters.contrast;
+  // A color clips when it can't reach the contrast value specified in the scale parameters
+  let clips =
+    calcContrast < state.swatches[props.swatch].scale.parameters.contrast;
 
-  let luminance = chroma(color).luminance();
-  luminance = +luminance.toFixed(3);
+  // To display luminance value on the swatch
+  let luminance = +chroma(color).luminance().toFixed(2);
 
+  // What between white or black will contrast enough to display information on the swatch bg color
   const bw =
     chroma.valid(color) && chroma.contrast(color, "#000") > 7
       ? "black"
@@ -45,7 +48,7 @@ const Swatch = (props) => {
       p={2}
       spacing={0}
     >
-      {color == state[props.swatch].hex && (
+      {color === state.swatches[props.swatch].hex && (
         <RiSeedlingLine color={bw} size="2em" />
       )}
 
@@ -54,18 +57,24 @@ const Swatch = (props) => {
           <Flex color={bw} align="center" justify="center" boxSize={5}>
             <RiErrorWarningLine color={bw} />
           </Flex>
-          <Text fontSize="xs" fontWeight="bold" color={bw}>
+          <Text fontSize="xs" fontFamily="mono" fontWeight="bold" color={bw}>
             {calcContrast}&thinsp;&#8758;&thinsp;1
           </Text>
         </HStack>
       )}
 
-      <VStack spacing="3" align="stretch" w="100%" mt="auto">
+      <VStack
+        className={`${color}-info`}
+        spacing="3"
+        align="stretch"
+        w="100%"
+        mt="auto"
+      >
         <HStack m={0} align="center">
           <Flex color={bw} align="center" justify="center" boxSize={5}>
             <RiSunLine />
           </Flex>
-          <Text fontSize="xs" fontWeight="bold" color={bw}>
+          <Text fontSize="xs" fontFamily="mono" fontWeight="bold" color={bw}>
             {luminance}
           </Text>
         </HStack>
@@ -88,6 +97,7 @@ const Swatch = (props) => {
             </Flex>
             <Text
               fontSize="xs"
+              fontFamily="mono"
               fontWeight="bold"
               color={"currentcolor"}
               textTransform="uppercase"
@@ -99,12 +109,16 @@ const Swatch = (props) => {
         <BWCheck
           color={color}
           against={
-            (chroma.valid(context.onLight) && context.onLight) || "white"
+            (chroma.valid(state.settings.onLight) && state.settings.onLight) ||
+            "white"
           }
         />
         <BWCheck
           color={color}
-          against={(chroma.valid(context.onDark) && context.onDark) || "black"}
+          against={
+            (chroma.valid(state.settings.onDark) && state.settings.onDark) ||
+            "black"
+          }
         />
       </VStack>
     </VStack>

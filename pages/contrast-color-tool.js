@@ -1,16 +1,12 @@
-import { colorSpaces, useStateValue } from "../utils/state";
-import { useContextValue } from "../utils/context";
+import { colorSpaceNames, colorSpaces, useStateValue } from "../utils/state";
 import chroma from "chroma-js";
 import { useState } from "react";
-import { makeScale, Scale } from "../components/Scale";
+import { Scale } from "../components/Scale";
 import Swatch from "../components/Swatch";
-import {
-  RiAddLine,
-  RiArrowDownSFill,
-  RiArrowDropDownFill,
-  RiDeleteBin2Line,
-} from "react-icons/ri";
+import { RiAddLine, RiArrowDownSFill, RiDeleteBin2Line } from "react-icons/ri";
 import { HexInput } from "../components/HexInput";
+import { createScale, updateValues } from "../utils/creator";
+import { hexToValues } from "../utils/helpers";
 
 const {
   VStack,
@@ -23,9 +19,6 @@ const {
   Box,
   FormControl,
   FormLabel,
-  Input,
-  Code,
-  Button,
   IconButton,
   Heading,
   Text,
@@ -39,54 +32,123 @@ const {
 const { Slider } = require("../components/Slider");
 
 export const ContrastColorTool = () => {
-  // state containing the swatches and scale
+  // State containing the settings and swatches
   const [state, dispatch] = useStateValue();
 
-  //context containing global settings
-  const [context, contextDistpatch] = useContextValue();
-
-  //tab index for when removing swatches
+  // Tab index for when removing swatches. Initial control is set to random
   const [tabIndex, setTabIndex] = useState(0);
-  const [controls, setControls] = useState("baseColor");
+  const [controls, setControls] = useState("random");
 
-  const scale = state[controls].scale.hex;
+  // To display the current scale and swatch in the current tab
+  const swatch = state.swatches[controls];
+  const scale = swatch.scale.hex;
 
-  const handleChangeBaseColor = (e) => {
-    contextDistpatch({
-      type: "changeValue",
+  // State handlers
+  const handleChangeSettingValue = (e) => {
+    dispatch({
+      type: "mergeValue",
       data: {
-        [e.target.id]: e.target.value,
+        settings: {
+          [e.target.id]: e.target.value,
+        },
       },
     });
   };
 
-  const handleChangeColorSpace = (e) => {
-    contextDistpatch({
-      type: "changeValue",
-      data: { [e.target.id]: e.target.value },
+  const handleChangeHex = (id, e) => {
+    // Use current swatch values to dispatch when hex is invalid
+    const swatch = state.swatches[id];
+    let newValues = swatch.values;
+    let newScale = swatch.scale;
+
+    if (chroma.valid(e.target.value)) {
+      newValues = hexToValues(e.target.value, state.settings.mode);
+      newScale.hex = createScale(
+        swatch.scale.parameters,
+        e.target.value,
+        state.settings.mode
+      );
+    }
+
+    dispatch({
+      type: "mergeValue",
+      data: {
+        swatches: {
+          [id]: {
+            hex: e.target.value,
+            values: newValues,
+            scale: newScale,
+          },
+        },
+      },
     });
   };
 
-  const handleChangeHex = (swatch, e) => {
-    let newValues = state[swatch].values;
+  const handleAddSwatch = () => {
+    // Generates a new unique ID for a new swatche
+    // Yes, it is overkill
+    const endsWithNumber = /(.+)(\d+$)/;
+    const swatches = Object.keys(state.swatches);
+    const parts = swatches[swatches.length - 1].split(endsWithNumber);
+    const increment = parseInt(parts[2]) + 1;
+    const incrementable = endsWithNumber.test(swatches[swatches.length - 1]);
 
-    chroma.valid(e.target.value) &&
-      (newValues = Object.fromEntries(
-        ["h", "c", "l"].map((x) => [x, chroma(e.target.value).get(`hcl.${x}`)])
-      ));
+    const newSwatch = incrementable
+      ? `${parts[1]}${increment}`
+      : `${parts[0]} 1`;
 
-    let newScale = chroma.valid(e.target.value) && {
-      scale: {
-        hex: makeScale(state[swatch].scale.parameters, e.target.value, context),
-      },
-    };
+    dispatch({
+      type: "addSwatch",
+      data: newSwatch,
+    });
+  };
+
+  const handleRemoveSwatch = () => {
+    const swatches = Object.keys(state.swatches);
+    let index = swatches.indexOf(controls);
+    let moveControls = index !== 0 ? swatches[index - 1] : swatches[index + 1];
+
+    //console.log("remove ", swatches[index], " from index: ", index);
+    //console.log(swatches);
+    swatches.splice(index, 1);
+    //console.log(swatches);
+    //console.log("move to index : ", swatches.indexOf(moveControls));
+    setTabIndex(swatches.indexOf(moveControls));
+    //console.log("now controls: ", moveControls);
+    setControls(moveControls);
+    dispatch({
+      type: "removeSwatch",
+      data: controls,
+    });
+  };
+
+  const handleChangeMode = (e) => {
+    console.log("to: ", e.target.value);
+    const swatches = Object.keys(state.swatches);
+
+    let newSwatchValues = state.swatches;
+
+    swatches.map((key, i) => {
+      newSwatchValues[key].values = updateValues(
+        state.swatches[key].hex,
+        e.target.value
+      );
+    });
 
     dispatch({
       type: "changeValue",
       data: {
-        [swatch]: { hex: e.target.value, values: newValues, ...newScale },
+        settings: {
+          ...state.settings,
+          [e.target.id]: e.target.value,
+        },
+        swatches: {
+          ...newSwatchValues,
+        },
       },
     });
+
+    console.log(newSwatchValues);
   };
 
   return (
@@ -114,9 +176,9 @@ export const ContrastColorTool = () => {
             <FormControl width="auto" id="onLight">
               <FormLabel>Base background color</FormLabel>
               <HexInput
-                isInvalid={!chroma.valid(context.onLight)}
-                value={context.onLight}
-                onChange={(e) => handleChangeBaseColor(e)}
+                isInvalid={!chroma.valid(state.settings.onLight)}
+                value={state.settings.onLight}
+                onChange={(e) => handleChangeSettingValue(e)}
                 type="text"
                 w={100}
               />
@@ -124,22 +186,22 @@ export const ContrastColorTool = () => {
             <FormControl width="auto" id="onDark">
               <FormLabel>Base text color</FormLabel>
               <HexInput
-                isInvalid={!chroma.valid(context.onDark)}
-                value={context.onDark}
-                onChange={(e) => handleChangeBaseColor(e)}
+                isInvalid={!chroma.valid(state.settings.onDark)}
+                value={state.settings.onDark}
+                onChange={(e) => handleChangeSettingValue(e)}
                 type="text"
                 w={100}
               />
             </FormControl>
           </HStack>
         </FormControl>
-        <FormControl width="auto" id="colorSpace">
+        <FormControl width="auto" id="mode">
           <FormLabel>Color Space</FormLabel>
           <Select
-            defaultValue={context.colorSpace}
+            defaultValue={state.settings.mode}
             variant="outline"
             icon={<RiArrowDownSFill />}
-            onChange={(e) => handleChangeColorSpace(e)}
+            onChange={(e) => handleChangeMode(e)}
           >
             {Object.keys(colorSpaces).map((key, i) => {
               return (
@@ -162,17 +224,12 @@ export const ContrastColorTool = () => {
           index={tabIndex}
           onChange={(index) => {
             setTabIndex(index);
-            setControls(Object.keys(state)[index]);
+            setControls(Object.keys(state.swatches)[index]);
           }}
         >
           <TabList>
-            {Object.keys(state).map((swatch, key) => {
-              const tabContrastcolor =
-                chroma.valid(state[swatch].hex) &&
-                chroma.contrast(state[swatch].hex, "#000") > 7
-                  ? "black"
-                  : "white";
-              return <Tab key={key} color={state[swatch].hex}></Tab>;
+            {Object.keys(state.swatches).map((swatch, key) => {
+              return <Tab key={key} color={state.swatches[swatch].hex}></Tab>;
             })}
             <IconButton
               aria-label="Add swatch"
@@ -183,36 +240,13 @@ export const ContrastColorTool = () => {
               mt={0}
               ml="auto"
               colorScheme="yellow"
-              onClick={() => {
-                const endsWithNumber = /(.+)(\d+$)/;
-                const swatches = Object.keys(state);
-                const parts = swatches[swatches.length - 1].split(
-                  endsWithNumber
-                );
-                const increment = parseInt(parts[2]) + 1;
-                const incrementable = endsWithNumber.test(
-                  swatches[swatches.length - 1]
-                );
-
-                const newSwatch = incrementable
-                  ? `${parts[1]}${increment}`
-                  : `${parts[0]} 1`;
-
-                dispatch({
-                  type: "addSwatch",
-                  data: newSwatch,
-                });
-              }}
+              onClick={() => handleAddSwatch()}
             />
           </TabList>
 
           <TabPanels flexGrow={1}>
-            {Object.keys(state).map((swatch, key) => {
-              const tabContrastcolor =
-                chroma.valid(state[swatch].hex) &&
-                chroma.contrast(state[swatch].hex, "#000") > 7
-                  ? "black"
-                  : "white";
+            {Object.keys(state.swatches).map((swatch, key) => {
+              const scale = state.swatches[swatch].scale.hex;
               return (
                 <TabPanel key={key} p={0}>
                   <HStack
@@ -223,6 +257,7 @@ export const ContrastColorTool = () => {
                     flexWrap="wrap"
                   >
                     {scale.map((color, i) => {
+                      console.log(scale);
                       return (
                         <Box
                           key={i}
@@ -263,7 +298,7 @@ export const ContrastColorTool = () => {
               <VStack spacing={8} align="start">
                 <Flex w="100%">
                   <Editable
-                    value={controls}
+                    value={swatch.name}
                     flexGrow="1"
                     d="flex"
                     alignItems="center"
@@ -273,7 +308,6 @@ export const ContrastColorTool = () => {
                     <EditablePreview />
                     <EditableInput
                       onChange={(e) => {
-                        setControls(e.target.value);
                         dispatch({
                           type: "renameSwatch",
                           data: { old: controls, new: e.target.value },
@@ -281,7 +315,7 @@ export const ContrastColorTool = () => {
                       }}
                     />
                   </Editable>
-                  {Object.keys(state).length > 1 && (
+                  {Object.keys(state.swatches).length > 1 && (
                     <IconButton
                       ml={2}
                       size="lg"
@@ -291,43 +325,15 @@ export const ContrastColorTool = () => {
                       aria-label="Delete swatch"
                       icon={<RiDeleteBin2Line size="1.5rem" />}
                       value={controls}
-                      onClick={() => {
-                        const swatches = Object.keys(state);
-                        let index = swatches.indexOf(controls);
-                        let moveControls =
-                          index !== 0
-                            ? swatches[index - 1]
-                            : swatches[index + 1];
-
-                        console.log(
-                          "remove ",
-                          swatches[index],
-                          " from index: ",
-                          index
-                        );
-                        console.log(swatches);
-                        swatches.splice(index, 1);
-                        console.log(swatches);
-                        console.log(
-                          "move to index : ",
-                          swatches.indexOf(moveControls)
-                        );
-                        setTabIndex(swatches.indexOf(moveControls));
-                        console.log("now controls: ", moveControls);
-                        setControls(moveControls);
-                        dispatch({
-                          type: "removeSwatch",
-                          data: controls,
-                        });
-                      }}
+                      onClick={() => handleRemoveSwatch()}
                     />
                   )}
                 </Flex>
                 <FormControl id={`${controls}-hex`}>
                   <FormLabel>Hex</FormLabel>
                   <HexInput
-                    isInvalid={!chroma.valid(state[controls].hex)}
-                    value={state[controls].hex}
+                    isInvalid={!chroma.valid(swatch.hex)}
+                    value={swatch.hex}
                     onChange={(e) => handleChangeHex(controls, e)}
                     type="text"
                     w={100}
@@ -335,9 +341,9 @@ export const ContrastColorTool = () => {
                 </FormControl>
                 <Box alignSelf="stretch">
                   <Slider
-                    name="Hue-Chroma-Luminance"
+                    name={colorSpaceNames[state.settings.mode]}
                     swatch={controls}
-                    mode={colorSpaces[context.colorSpace]}
+                    mode={colorSpaces[state.settings.mode]}
                   />
                 </Box>
               </VStack>

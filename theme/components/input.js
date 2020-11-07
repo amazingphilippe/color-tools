@@ -20,6 +20,8 @@ export default {
         color: "gray.600",
       },
       field: {
+        fontFamily: "mono",
+        fontWeight: "bold",
         px: 2,
         border: "2px",
         borderRadius: 0,

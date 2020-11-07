@@ -18,19 +18,20 @@ export const BWCheck = (props) => {
       <Text
         color={bw}
         fontSize="xs"
-        textTransform="uppercase"
+        fontFamily="mono"
         fontWeight="bold"
+        textTransform="uppercase"
         whiteSpace="nowrap"
       >
-        {contrast > 7
+        {Number(contrast.toFixed(2)) >= 7
           ? "AAA"
-          : contrast > 4.5
+          : contrast >= 4.5
           ? "AA"
-          : contrast > 3
+          : contrast >= 3
           ? "B"
           : "Fail"}
         &thinsp;&asymp;&thinsp;
-        {Number(contrast.toFixed(1))}&thinsp;&#8758;&thinsp;1
+        {Number(contrast.toFixed(2))}&thinsp;&#8758;&thinsp;1
       </Text>
     </HStack>
   );

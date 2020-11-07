@@ -1,7 +1,6 @@
 import { createContext, useContext, useReducer } from "react";
-import chroma from "chroma-js";
-import { scale } from "../components/Scale";
 import merge from "deepmerge";
+import { createSwatch } from "./creator";
 
 export const StateContext = createContext();
 
@@ -15,32 +14,27 @@ export const useStateValue = () => useContext(StateContext);
 
 const overwriteMerge = (destinationArray, sourceArray, options) => sourceArray;
 
-const swatchModel = {
-  hex: "#26374a",
-  values: { h: 266.19, c: 13.87, l: 22.43 },
-  scale: {
-    hex: [
-      "#141d27",
-      "#26374a",
-      "#3e4d5e",
-      "#556372",
-      "#6e7a87",
-      "#89939d",
-      "#a7afb6",
-      "#c9ced2",
-      "#eff1f2",
-    ],
-    parameters: { dark: 1, light: 7, contrast: 1.4 },
+const base = createSwatch("lch");
+
+export const initialState = {
+  settings: {
+    onLight: "#FFFFFF",
+    onDark: "#000000",
+    mode: "lch",
+    showTests: true,
+  },
+  swatches: {
+    random: base,
   },
 };
 
-export const initialState = {
-  baseColor: {
-    ...swatchModel,
-  },
-  baseColor2: {
-    ...swatchModel,
-  },
+export const colorSpaceNames = {
+  hcl: "Hue-Chroma-Luminance",
+  lch: "Luminance-Chroma-Hue",
+  lab: "Luminance-a-b",
+  hsl: "Hue-Saturation-Lightness",
+  hsv: "Hue-Saturation-Value",
+  rgb: "Red-Green-Blue",
 };
 
 export const colorSpaces = {
@@ -79,18 +73,25 @@ export const colorSpaces = {
 export function reducer(state, action) {
   switch (action.type) {
     case "changeValue":
+      //console.log("Change: ", state, action.data);
+      return { ...state, ...action.data };
+    case "mergeValue":
+      //console.log("Merge: ", state, action.data);
       return merge(state, action.data, { arrayMerge: overwriteMerge });
     case "addSwatch":
-      return merge(state, { [action.data]: swatchModel });
+      const newSwatch = createSwatch(state.settings.mode);
+      return merge(state, {
+        swatches: {
+          [action.data]: newSwatch,
+        },
+      });
     case "renameSwatch":
-      let swatchData = state[action.data.old];
-      delete state[action.data.old];
+      state.swatches[action.data.old].name = action.data.new;
       return {
         ...state,
-        [action.data.new]: swatchData,
       };
     case "removeSwatch":
-      delete state[action.data];
+      delete state.swatches[action.data];
       return { ...state };
     default:
       return state;
