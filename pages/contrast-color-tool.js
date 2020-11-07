@@ -123,7 +123,7 @@ export const ContrastColorTool = () => {
   };
 
   const handleChangeMode = (e) => {
-    console.log("to: ", e.target.value);
+    //console.log("to: ", e.target.value);
     const swatches = Object.keys(state.swatches);
 
     let newSwatchValues = state.swatches;
@@ -148,7 +148,7 @@ export const ContrastColorTool = () => {
       },
     });
 
-    console.log(newSwatchValues);
+    //console.log(newSwatchValues);
   };
 
   return (
@@ -257,7 +257,6 @@ export const ContrastColorTool = () => {
                     flexWrap="wrap"
                   >
                     {scale.map((color, i) => {
-                      console.log(scale);
                       return (
                         <Box
                           key={i}
