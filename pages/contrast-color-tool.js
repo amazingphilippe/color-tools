@@ -28,6 +28,7 @@ const {
   EditablePreview,
   EditableInput,
   Select,
+  Kbd,
 } = require("@chakra-ui/core");
 const { Slider } = require("../components/Slider");
 
