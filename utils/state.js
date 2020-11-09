@@ -22,19 +22,21 @@ export const initialState = {
     showTests: true,
   },
   swatches: {
-    hex: "#263648",
-    name: "Canada Blue",
-    values: {
-      l: 22,
-      c: 13,
-      h: 266,
-    },
-    scale: {
-      hex: ["#121a23", "#263648", "#495665"],
-      parameters: {
-        dark: "1",
-        light: "1",
-        contrast: "1.6",
+    canada: {
+      hex: "#263648",
+      name: "Canada Blue",
+      values: {
+        l: 22,
+        c: 13,
+        h: 266,
+      },
+      scale: {
+        hex: ["#121a23", "#263648", "#495665"],
+        parameters: {
+          dark: "1",
+          light: "1",
+          contrast: "1.6",
+        },
       },
     },
   },
