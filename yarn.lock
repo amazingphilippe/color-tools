@@ -1231,7 +1231,7 @@
   dependencies:
     "@chakra-ui/utils" "1.0.0-rc.8"
 
-"@chakra-ui/core@^1.0.0-rc.8":
+"@chakra-ui/core@^1.0.0-rc.7":
   version "1.0.0-rc.8"
   resolved "https://registry.yarnpkg.com/@chakra-ui/core/-/core-1.0.0-rc.8.tgz#2a2e7105b18488762edf479cc7cd77185503c760"
   integrity sha512-ZPGjTwy5QrYG/sYuGhrYeBNfWNIfQMSI4spHkNusd+qmNwPJMXR/WO0M8FwTdSnLc0ZVubUpvqdY4e9fp+xT+g==
@@ -1723,7 +1723,7 @@
     "@emotion/serialize" "^0.11.15"
     "@emotion/utils" "0.11.3"
 
-"@emotion/styled@10.0.27", "@emotion/styled@^10.0.27":
+"@emotion/styled@10.0.27":
   version "10.0.27"
   resolved "https://registry.yarnpkg.com/@emotion/styled/-/styled-10.0.27.tgz#12cb67e91f7ad7431e1875b1d83a94b814133eaf"
   integrity sha512-iK/8Sh7+NLJzyp9a5+vIQIXTYxfT4yB/OJbjzQanB2RZpvmzBQOHZWhpAMZWYEKRNNbsD6WfBw5sVWkb6WzS/Q==

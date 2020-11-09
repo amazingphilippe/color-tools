@@ -14,8 +14,6 @@ export const useStateValue = () => useContext(StateContext);
 
 const overwriteMerge = (destinationArray, sourceArray, options) => sourceArray;
 
-const base = createSwatch("lch");
-
 export const initialState = {
   settings: {
     onLight: "#FFFFFF",
@@ -24,7 +22,21 @@ export const initialState = {
     showTests: true,
   },
   swatches: {
-    random: base,
+    hex: "#263648",
+    name: "Canada Blue",
+    values: {
+      l: 22,
+      c: 13,
+      h: 266,
+    },
+    scale: {
+      hex: ["#121a23", "#263648", "#495665"],
+      parameters: {
+        dark: "1",
+        light: "1",
+        contrast: "1.6",
+      },
+    },
   },
 };
 

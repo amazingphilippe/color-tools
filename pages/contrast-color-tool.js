@@ -1,6 +1,6 @@
 import { colorSpaceNames, colorSpaces, useStateValue } from "../utils/state";
 import chroma from "chroma-js";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Scale } from "../components/Scale";
 import Swatch from "../components/Swatch";
 import { RiAddLine, RiArrowDownSFill, RiDeleteBin2Line } from "react-icons/ri";
@@ -29,16 +29,24 @@ const {
   EditableInput,
   Select,
   Kbd,
+  List,
+  RadioGroup,
+  Radio,
+  VisuallyHidden,
+  Button,
 } = require("@chakra-ui/core");
 const { Slider } = require("../components/Slider");
 
 export const ContrastColorTool = () => {
   // State containing the settings and swatches
   const [state, dispatch] = useStateValue();
+  const ref = useRef(state);
+
+  const swatches = Object.keys(state.swatches);
 
   // Tab index for when removing swatches. Initial control is set to random
   const [tabIndex, setTabIndex] = useState(0);
-  const [controls, setControls] = useState("random");
+  const [controls, setControls] = useState(swatches[0]);
 
   // To display the current scale and swatch in the current tab
   const swatch = state.swatches[controls];
@@ -215,27 +223,43 @@ export const ContrastColorTool = () => {
         </FormControl>
       </VStack>
       <HStack alignSelf="stretch" spacing={0}>
-        <Tabs
+        <VStack
           variant="palette"
           width="75%"
           bg="gray.100"
           alignSelf="stretch"
           d="flex"
           flexDirection="column"
-          index={tabIndex}
-          onChange={(index) => {
-            setTabIndex(index);
-            setControls(Object.keys(state.swatches)[index]);
-          }}
+          role="tablist"
+          spacing={0}
         >
-          <TabList>
+          <Flex w="100%">
             {Object.keys(state.swatches).map((swatch, key) => {
-              return <Tab key={key} color={state.swatches[swatch].hex}></Tab>;
+              return (
+                <Button
+                  color={state.swatches[swatch].hex}
+                  value={swatch}
+                  key={key}
+                  variant="palette"
+                  onClick={(e) => {
+                    //console.log(value);
+                    //setTabIndex(value);
+                    setControls(e.target.value);
+                  }}
+                  role="tab"
+                  tabIndex={swatch === controls ? -1 : 0}
+                  aria-disabled="false"
+                  aria-controls={`swatch-panel-${swatch}`}
+                  aria-selected={swatch === controls ? true : false}
+                >
+                  <VisuallyHidden>{state.swatches[swatch].name}</VisuallyHidden>
+                </Button>
+              );
             })}
             <IconButton
               aria-label="Add swatch"
               size="lg"
-              icon={<RiAddLine size="1.5rem" />}
+              icon={<RiAddLine size="1.5em" />}
               borderRadius="0"
               m={2}
               mt={0}
@@ -243,44 +267,39 @@ export const ContrastColorTool = () => {
               colorScheme="yellow"
               onClick={() => handleAddSwatch()}
             />
-          </TabList>
-
-          <TabPanels flexGrow={1}>
-            {Object.keys(state.swatches).map((swatch, key) => {
-              const scale = state.swatches[swatch].scale.hex;
-              return (
-                <TabPanel key={key} p={0}>
-                  <HStack
-                    justifyContent="stretch"
-                    height="100%"
-                    spacing={0}
-                    p={0}
-                    flexWrap="wrap"
+          </Flex>
+          <Box w="100%">
+            <HStack
+              justifyContent="stretch"
+              height="100%"
+              spacing={0}
+              p={0}
+              flexWrap="wrap"
+              id={`swatch-panel-${controls}`}
+              role="tabpanel"
+            >
+              {scale.map((color, i) => {
+                console.log(swatch);
+                return (
+                  <Box
+                    key={i}
+                    h="100%"
+                    flexBasis={24}
+                    flexGrow={1}
+                    flexShrink={0}
                   >
-                    {scale.map((color, i) => {
-                      return (
-                        <Box
-                          key={i}
-                          h="100%"
-                          flexBasis={24}
-                          flexGrow={1}
-                          flexShrink={0}
-                        >
-                          <Swatch
-                            color={color}
-                            index={i}
-                            scale={scale}
-                            swatch={swatch}
-                          />
-                        </Box>
-                      );
-                    })}
-                  </HStack>
-                </TabPanel>
-              );
-            })}
-          </TabPanels>
-        </Tabs>
+                    <Swatch
+                      color={color}
+                      index={i}
+                      scale={scale}
+                      swatch={swatch}
+                    />
+                  </Box>
+                );
+              })}
+            </HStack>
+          </Box>
+        </VStack>
         <Tabs
           width="25%"
           bg="gray.100"
@@ -298,7 +317,7 @@ export const ContrastColorTool = () => {
               <VStack spacing={8} align="start">
                 <Flex w="100%">
                   <Editable
-                    value={swatch.name}
+                    value={state.swatches[controls].name}
                     flexGrow="1"
                     d="flex"
                     alignItems="center"
@@ -323,7 +342,7 @@ export const ContrastColorTool = () => {
                       variant="ghost"
                       borderRadius={0}
                       aria-label="Delete swatch"
-                      icon={<RiDeleteBin2Line size="1.5rem" />}
+                      icon={<RiDeleteBin2Line size="1.5em" />}
                       value={controls}
                       onClick={() => handleRemoveSwatch()}
                     />
@@ -332,8 +351,8 @@ export const ContrastColorTool = () => {
                 <FormControl id={`${controls}-hex`}>
                   <FormLabel>Hex</FormLabel>
                   <HexInput
-                    isInvalid={!chroma.valid(swatch.hex)}
-                    value={swatch.hex}
+                    isInvalid={!chroma.valid(state.swatches[controls].hex)}
+                    value={state.swatches[controls].hex}
                     onChange={(e) => handleChangeHex(controls, e)}
                     type="text"
                     w={100}

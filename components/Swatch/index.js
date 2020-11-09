@@ -26,8 +26,7 @@ const Swatch = (props) => {
   calcContrast = +calcContrast.toFixed(1);
 
   // A color clips when it can't reach the contrast value specified in the scale parameters
-  let clips =
-    calcContrast < state.swatches[props.swatch].scale.parameters.contrast;
+  let clips = calcContrast < props.swatch.scale.parameters.contrast;
 
   // To display luminance value on the swatch
   let luminance = +chroma(color).luminance().toFixed(2);
@@ -48,9 +47,7 @@ const Swatch = (props) => {
       p={2}
       spacing={0}
     >
-      {color === state.swatches[props.swatch].hex && (
-        <RiSeedlingLine color={bw} size="2em" />
-      )}
+      {color === props.swatch.hex && <RiSeedlingLine color={bw} size="2em" />}
 
       {clips && props.index !== props.scale.length - 1 && (
         <HStack m={0} align="center">

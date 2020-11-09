@@ -1,6 +1,7 @@
 import { extendTheme } from "@chakra-ui/core";
 
 import Input from "./components/input";
+import Radio from "./components/radio";
 import Select from "./components/select";
 import Button from "./components/button";
 import Editable from "./components/editable";
@@ -26,6 +27,7 @@ const overrides = {
   },
   components: {
     Input,
+    Radio,
     Select,
     Button,
     Editable,

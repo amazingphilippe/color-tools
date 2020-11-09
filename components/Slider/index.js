@@ -53,7 +53,7 @@ export const Slider = (props) => {
     );
 
     dispatch({
-      type: "changeValue",
+      type: "mergeValue",
       data: {
         swatches: {
           ...newSwatch,
