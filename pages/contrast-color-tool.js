@@ -279,7 +279,6 @@ export const ContrastColorTool = () => {
               role="tabpanel"
             >
               {scale.map((color, i) => {
-                console.log(swatch);
                 return (
                   <Box
                     key={i}
