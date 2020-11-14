@@ -2,7 +2,12 @@ import React from "react";
 import chroma from "chroma-js";
 import merge from "deepmerge";
 import { overwriteMerge } from "../../utils/helpers";
-import { colorSpaces, useStateValue } from "../../utils/state";
+import {
+  colorSpaces,
+  colorSpaceNames,
+  useStateValue,
+  StateContext,
+} from "../../utils/state";
 import {
   VStack,
   Input,
@@ -15,27 +20,49 @@ import {
   SliderThumb,
   HStack,
   Box,
+  useSlider,
+  Text,
 } from "@chakra-ui/core";
 import { createScale } from "../../utils/creator";
+import { ChannelSlider } from "../ChannelSlider";
+import styles from "../../theme/components/slider.module.scss";
 
 export const Slider = (props) => {
   const [state, dispatch] = useStateValue();
 
+  const {
+    getInputProps,
+    getRootProps,
+    getTrackProps,
+    getInnerTrackProps,
+    getThumbProps,
+    getMarkerProps,
+  } = useSlider(props);
+
   // Some constants to make the code a bit cleaner
-  const mode = state.settings.mode.split("");
-  const values = state.swatches[props.swatch].values;
+  const mode = props.mode;
+  const modeKeys = mode.split("");
+  const controls = props.controls;
+  const values = state.swatches[controls].values;
+
+  console.log(values);
+
+  const controlsId = controls.replace(/\s+/g, "-").toLowerCase();
 
   // State handler
   const handleChangeValue = (key, val) => {
+    console.log(state.controls);
     let newValues = {
       ...values,
       [key]: val,
     };
 
+    //console.log("new values", newValues);
+
     let newHex = chroma(newValues).hex();
 
     let newScale = createScale(
-      state.swatches[props.swatch].scale.parameters,
+      state.swatches[state.controls].scale.parameters,
       newHex,
       state.settings.mode
     );
@@ -43,7 +70,7 @@ export const Slider = (props) => {
     let newSwatch = merge(
       state.swatches,
       {
-        [props.swatch]: {
+        [state.controls]: {
           hex: newHex,
           values: newValues,
           scale: { hex: newScale },
@@ -52,8 +79,10 @@ export const Slider = (props) => {
       { arrayMerge: overwriteMerge }
     );
 
+    //console.log("merged", newSwatch.color.values);
+
     dispatch({
-      type: "mergeValue",
+      type: "changeValue",
       data: {
         swatches: {
           ...newSwatch,
@@ -64,17 +93,14 @@ export const Slider = (props) => {
 
   return (
     <VStack>
-      <FormControl id={`${props.swatch}-${mode}-group`}>
-        <FormLabel>{props.name}</FormLabel>
-        {mode.map((key, i) => {
+      <FormControl id={`${controlsId}-${mode}-group`}>
+        <FormLabel>{colorSpaceNames[mode]}</FormLabel>
+        {modeKeys.map((key, i) => {
           return (
-            <FormControl key={key} id={`${props.swatch}-${key}`}>
+            <FormControl key={key} id={`${controlsId}-${key}`}>
               <HStack spacing={0}>
                 <FormLabel fontFamily="mono">{key}</FormLabel>
-                <FormHelperText>
-                  {colorSpaces[state.settings.mode][i][0]} -{" "}
-                  {colorSpaces[state.settings.mode][i][1]}
-                </FormHelperText>
+                <FormHelperText>{`${colorSpaces[mode][i][0]} - ${colorSpaces[mode][i][1]}`}</FormHelperText>
               </HStack>
 
               <HStack spacing={0}>
@@ -87,20 +113,25 @@ export const Slider = (props) => {
                   w={100}
                   step="0.01"
                 />
-                <Box px={5} w="100%" d="flex" align="center">
-                  <ChakraSlider
+                <Box
+                  px={5}
+                  w="100%"
+                  d="flex"
+                  align="center"
+                  className={styles.slider}
+                >
+                  <input
+                    {...getInputProps()}
+                    type="range"
+                    id={`${controlsId}-${props.channel}-slider`}
                     value={values[key]}
-                    onChange={(val) => handleChangeValue(key, val)}
+                    onChange={(e) => {
+                      handleChangeValue(key, e.target.value);
+                    }}
                     step={0.01}
-                    min={colorSpaces[state.settings.mode][i][0]}
-                    max={colorSpaces[state.settings.mode][i][1]}
-                    focusThumbOnChange={false}
-                  >
-                    <SliderTrack>
-                      <SliderFilledTrack />
-                    </SliderTrack>
-                    <SliderThumb boxSize={10} />
-                  </ChakraSlider>
+                    min={colorSpaces[mode][i][0]}
+                    max={colorSpaces[mode][i][1]}
+                  />
                 </Box>
               </HStack>
             </FormControl>
@@ -134,4 +165,33 @@ export const Slider = (props) => {
         </HStack>
       </label>
     </div>
+
+
+    <ChakraSlider
+                    value={values[key]}
+                    onChange={(val) => handleChangeValue(key, val)}
+                    step={0.01}
+                    min={colorSpaces[state.settings.mode][i][0]}
+                    max={colorSpaces[state.settings.mode][i][1]}
+                    focusThumbOnChange={false}
+                  >
+                    <SliderTrack>
+                      <SliderFilledTrack />
+                    </SliderTrack>
+                    <SliderThumb boxSize={10} />
+                  </ChakraSlider>
+
+
+
+
+                  <input
+                    type="range"
+                    value={values[key]}
+                    onChange={(e) =>
+                      handleChangeValue(key, Number(e.target.value))
+                    }
+                    step={0.01}
+                    min={colorSpaces[state.settings.mode][i][0]}
+                    max={colorSpaces[state.settings.mode][i][1]}
+                  />
 */

@@ -2,7 +2,7 @@ import { createContext, useContext, useReducer } from "react";
 import merge from "deepmerge";
 import { createSwatch } from "./creator";
 
-export const StateContext = createContext();
+export const StateContext = createContext({});
 
 export const StateProvider = ({ reducer, initialState, children }) => (
   <StateContext.Provider value={useReducer(reducer, initialState)}>
@@ -15,6 +15,7 @@ export const useStateValue = () => useContext(StateContext);
 const overwriteMerge = (destinationArray, sourceArray, options) => sourceArray;
 
 export const initialState = {
+  controls: "color",
   settings: {
     onLight: "#FFFFFF",
     onDark: "#000000",
@@ -22,7 +23,7 @@ export const initialState = {
     showTests: true,
   },
   swatches: {
-    canada: {
+    color: {
       hex: "#263648",
       name: "Canada Blue",
       values: {
@@ -40,6 +41,7 @@ export const initialState = {
       },
     },
   },
+  forceUpdate: () => {},
 };
 
 export const colorSpaceNames = {
@@ -87,18 +89,24 @@ export const colorSpaces = {
 export function reducer(state, action) {
   switch (action.type) {
     case "changeValue":
-      //console.log("Change: ", state, action.data);
+      console.log(action.type, { ...state, ...action.data });
       return { ...state, ...action.data };
     case "mergeValue":
       //console.log("Merge: ", state, action.data);
-      return merge(state, action.data, { arrayMerge: overwriteMerge });
+      const mergedStateValues = merge(state, action.data, {
+        arrayMerge: overwriteMerge,
+      });
+      console.log(action.type, state.swatches);
+      return mergedStateValues;
     case "addSwatch":
       const newSwatch = createSwatch(state.settings.mode);
-      return merge(state, {
+      const addedSwatch = merge(state, {
         swatches: {
           [action.data]: newSwatch,
         },
       });
+      //console.log(action.type, Object.keys(state.swatches));
+      return addedSwatch;
     case "renameSwatch":
       state.swatches[action.data.old].name = action.data.new;
       return {
@@ -107,7 +115,10 @@ export function reducer(state, action) {
     case "removeSwatch":
       delete state.swatches[action.data];
       return { ...state };
+    case "setControls":
+      return { ...state, controls: action.data };
     default:
+      console.log(action.type, Object.keys(state.swatches));
       return state;
   }
 }

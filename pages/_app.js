@@ -5,11 +5,11 @@ import theme from "../theme";
 
 function App({ Component, pageProps }) {
   return (
-    <ChakraProvider theme={theme}>
-      <StateProvider initialState={initialState} reducer={reducer}>
+    <StateProvider initialState={initialState} reducer={reducer}>
+      <ChakraProvider theme={theme}>
         <Component {...pageProps} />
-      </StateProvider>
-    </ChakraProvider>
+      </ChakraProvider>
+    </StateProvider>
   );
 }
 
