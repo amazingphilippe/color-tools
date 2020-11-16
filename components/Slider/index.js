@@ -2,42 +2,25 @@ import React from "react";
 import chroma from "chroma-js";
 import merge from "deepmerge";
 import { overwriteMerge } from "../../utils/helpers";
-import {
-  colorSpaces,
-  colorSpaceNames,
-  useStateValue,
-  StateContext,
-} from "../../utils/state";
+import { useStateValue } from "../../utils/state";
+import { colorSpaces, colorSpaceNames } from "../../utils/spaces";
 import {
   VStack,
   Input,
   FormControl,
   FormLabel,
   FormHelperText,
-  Slider as ChakraSlider,
-  SliderTrack,
-  SliderFilledTrack,
-  SliderThumb,
   HStack,
   Box,
   useSlider,
-  Text,
 } from "@chakra-ui/core";
 import { createScale } from "../../utils/creator";
-import { ChannelSlider } from "../ChannelSlider";
 import styles from "../../theme/components/slider.module.scss";
 
 export const Slider = (props) => {
   const [state, dispatch] = useStateValue();
 
-  const {
-    getInputProps,
-    getRootProps,
-    getTrackProps,
-    getInnerTrackProps,
-    getThumbProps,
-    getMarkerProps,
-  } = useSlider(props);
+  const { getInputProps } = useSlider(props);
 
   // Some constants to make the code a bit cleaner
   const mode = props.mode;
@@ -45,13 +28,13 @@ export const Slider = (props) => {
   const controls = props.controls;
   const values = state.swatches[controls].values;
 
-  console.log(values);
+  //console.log(values);
 
   const controlsId = controls.replace(/\s+/g, "-").toLowerCase();
 
   // State handler
   const handleChangeValue = (key, val) => {
-    console.log(state.controls);
+    //console.log(state.controls);
     let newValues = {
       ...values,
       [key]: val,
@@ -126,7 +109,7 @@ export const Slider = (props) => {
                     id={`${controlsId}-${props.channel}-slider`}
                     value={values[key]}
                     onChange={(e) => {
-                      handleChangeValue(key, e.target.value);
+                      handleChangeValue(key, Number(e.target.value));
                     }}
                     step={0.01}
                     min={colorSpaces[mode][i][0]}

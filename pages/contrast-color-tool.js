@@ -1,4 +1,5 @@
-import { colorSpaceNames, colorSpaces, useStateValue } from "../utils/state";
+import { useStateValue } from "../utils/state";
+import { colorSpaceNames, colorSpaces } from "../utils/spaces";
 import chroma from "chroma-js";
 import { useEffect, useState } from "react";
 import { Scale } from "../components/Scale";

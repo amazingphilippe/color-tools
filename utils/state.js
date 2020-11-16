@@ -44,59 +44,17 @@ export const initialState = {
   forceUpdate: () => {},
 };
 
-export const colorSpaceNames = {
-  hcl: "Hue-Chroma-Luminance",
-  lch: "Luminance-Chroma-Hue",
-  lab: "Luminance-a-b",
-  hsl: "Hue-Saturation-Lightness",
-  hsv: "Hue-Saturation-Value",
-  rgb: "Red-Green-Blue",
-};
-
-export const colorSpaces = {
-  hcl: [
-    [0, 360],
-    [0, 140],
-    [0, 100],
-  ],
-  lch: [
-    [0, 100],
-    [0, 140],
-    [0, 360],
-  ],
-  lab: [
-    [0, 100],
-    [-100, 100],
-    [-100, 100],
-  ],
-  hsl: [
-    [0, 360],
-    [0, 1],
-    [0, 1],
-  ],
-  hsv: [
-    [0, 360],
-    [0, 1],
-    [0, 1],
-  ],
-  rgb: [
-    [0, 255],
-    [0, 255],
-    [0, 255],
-  ],
-};
-
 export function reducer(state, action) {
   switch (action.type) {
     case "changeValue":
-      console.log(action.type, { ...state, ...action.data });
+      //console.log(action.type, { ...state, ...action.data });
       return { ...state, ...action.data };
     case "mergeValue":
       //console.log("Merge: ", state, action.data);
       const mergedStateValues = merge(state, action.data, {
         arrayMerge: overwriteMerge,
       });
-      console.log(action.type, state.swatches);
+      //console.log(action.type, state.swatches);
       return mergedStateValues;
     case "addSwatch":
       const newSwatch = createSwatch(state.settings.mode);
@@ -118,7 +76,7 @@ export function reducer(state, action) {
     case "setControls":
       return { ...state, controls: action.data };
     default:
-      console.log(action.type, Object.keys(state.swatches));
+      //console.log(action.type, Object.keys(state.swatches));
       return state;
   }
 }
