@@ -34,7 +34,7 @@ import {
   VisuallyHidden,
   RadioGroup,
   useRadioGroup,
-} from "@chakra-ui/core";
+} from "@chakra-ui/react";
 import { RadioSwatch } from "../components/RadioSwatch";
 
 export const ContrastColorTool = () => {

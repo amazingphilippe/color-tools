@@ -1,4 +1,4 @@
-import { Flex, HStack, Text, VStack } from "@chakra-ui/core";
+import { Flex, HStack, Text, VStack } from "@chakra-ui/react";
 import React from "react";
 import chroma from "chroma-js";
 import { BWCheck } from "../BWCheck";

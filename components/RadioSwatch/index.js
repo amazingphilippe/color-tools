@@ -1,4 +1,4 @@
-import { Box, useRadio } from "@chakra-ui/core";
+import { Box, useRadio } from "@chakra-ui/react";
 
 export const RadioSwatch = (props) => {
   const { getInputProps, getCheckboxProps } = useRadio(props);

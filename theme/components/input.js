@@ -1,4 +1,4 @@
-import { theme } from "@chakra-ui/core";
+import { theme } from "@chakra-ui/react";
 
 const focusColor = theme.colors.orange[300];
 const hoverColor = theme.colors.black;

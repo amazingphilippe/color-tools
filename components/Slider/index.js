@@ -12,15 +12,19 @@ import {
   FormHelperText,
   HStack,
   Box,
-  useSlider,
-} from "@chakra-ui/core";
+  //useSlider,
+  Slider as ChakraSlider,
+  SliderTrack,
+  SliderFilledTrack,
+  SliderThumb,
+} from "@chakra-ui/react";
 import { createScale } from "../../utils/creator";
 import styles from "../../theme/components/slider.module.scss";
 
 export const Slider = (props) => {
   const [state, dispatch] = useStateValue();
 
-  const { getInputProps } = useSlider(props);
+  //const { getInputProps } = useSlider(props);
 
   // Some constants to make the code a bit cleaner
   const mode = props.mode;
@@ -103,7 +107,31 @@ export const Slider = (props) => {
                   align="center"
                   className={styles.slider}
                 >
-                  <input
+                  <ChakraSlider
+                    value={values[key]}
+                    onChange={(val) => handleChangeValue(key, val)}
+                    step={0.01}
+                    min={colorSpaces[state.settings.mode][i][0]}
+                    max={colorSpaces[state.settings.mode][i][1]}
+                    focusThumbOnChange={false}
+                  >
+                    <SliderTrack>
+                      <SliderFilledTrack />
+                    </SliderTrack>
+                    <SliderThumb boxSize={10} />
+                  </ChakraSlider>
+                </Box>
+              </HStack>
+            </FormControl>
+          );
+        })}
+      </FormControl>
+    </VStack>
+  );
+};
+/*
+
+<input
                     {...getInputProps()}
                     type="range"
                     id={`${controlsId}-${props.channel}-slider`}
@@ -115,16 +143,9 @@ export const Slider = (props) => {
                     min={colorSpaces[mode][i][0]}
                     max={colorSpaces[mode][i][1]}
                   />
-                </Box>
-              </HStack>
-            </FormControl>
-          );
-        })}
-      </FormControl>
-    </VStack>
-  );
-};
-/*
+
+
+
 <div>
       <label htmlFor={props.id}>
         <Text fontWeight="bold">{props.label}</Text>

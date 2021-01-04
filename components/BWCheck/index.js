@@ -1,6 +1,6 @@
 import React from "react";
 import chroma from "chroma-js";
-import { Box, Text, Flex, HStack } from "@chakra-ui/core";
+import { Box, Text, Flex, HStack } from "@chakra-ui/react";
 
 export const BWCheck = (props) => {
   const contrast = chroma.contrast(props.color, props.against);

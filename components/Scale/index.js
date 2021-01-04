@@ -5,7 +5,7 @@ import {
   InputRightAddon,
   FormControl,
   FormLabel,
-} from "@chakra-ui/core";
+} from "@chakra-ui/react";
 import { useStateValue } from "../../utils/state";
 import { createScale } from "../../utils/creator";
 

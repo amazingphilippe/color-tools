@@ -1,4 +1,4 @@
-import { Box, theme, useSlider } from "@chakra-ui/core";
+import { Box, theme, useSlider } from "@chakra-ui/react";
 
 export const ChannelSlider = (props) => {
   const hoverColor = theme.colors.black;

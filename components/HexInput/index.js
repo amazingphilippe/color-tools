@@ -1,4 +1,4 @@
-import { HStack, Flex, Input } from "@chakra-ui/core";
+import { HStack, Flex, Input } from "@chakra-ui/react";
 import chroma from "chroma-js";
 import { RiEmotionUnhappyLine } from "react-icons/ri";
 
