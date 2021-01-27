@@ -20,6 +20,7 @@ import {
 } from "@chakra-ui/react";
 import { createScale } from "../../utils/creator";
 import styles from "../../theme/components/slider.module.scss";
+import { ChannelSlider } from "../ChannelSlider";
 
 export const Slider = (props) => {
   const [state, dispatch] = useStateValue();
@@ -87,41 +88,17 @@ export const Slider = (props) => {
             <FormControl key={key} id={`${controlsId}-${key}`}>
               <HStack spacing={0}>
                 <FormLabel fontFamily="mono">{key}</FormLabel>
-                <FormHelperText>{`${colorSpaces[mode][i][0]} - ${colorSpaces[mode][i][1]}`}</FormHelperText>
+                <FormHelperText>{`${colorSpaces[mode][i][0]} to ${colorSpaces[mode][i][1]}`}</FormHelperText>
               </HStack>
-
-              <HStack spacing={0}>
-                <Input
-                  value={values[key]}
-                  onChange={(e) =>
-                    handleChangeValue(key, Number(e.target.value))
-                  }
-                  type="text"
-                  w={100}
-                  step="0.01"
-                />
-                <Box
-                  px={5}
-                  w="100%"
-                  d="flex"
-                  align="center"
-                  className={styles.slider}
-                >
-                  <ChakraSlider
-                    value={values[key]}
-                    onChange={(val) => handleChangeValue(key, val)}
-                    step={0.01}
-                    min={colorSpaces[state.settings.mode][i][0]}
-                    max={colorSpaces[state.settings.mode][i][1]}
-                    focusThumbOnChange={false}
-                  >
-                    <SliderTrack>
-                      <SliderFilledTrack />
-                    </SliderTrack>
-                    <SliderThumb boxSize={10} />
-                  </ChakraSlider>
-                </Box>
-              </HStack>
+              <ChannelSlider
+                min={colorSpaces[state.settings.mode][i][0]}
+                max={colorSpaces[state.settings.mode][i][1]}
+                value={values[key]}
+                inputHandler={(e) =>
+                  handleChangeValue(key, Number(e.target.value))
+                }
+                sliderHandler={(val) => handleChangeValue(key, val)}
+              />
             </FormControl>
           );
         })}

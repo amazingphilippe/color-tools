@@ -1,55 +1,47 @@
-import { Box, theme, useSlider } from "@chakra-ui/react";
+import {
+  Box,
+  HStack,
+  Input,
+  Slider,
+  SliderTrack,
+  SliderFilledTrack,
+  SliderThumb,
+} from "@chakra-ui/react";
 
 export const ChannelSlider = (props) => {
-  const hoverColor = theme.colors.black;
-  const focusColor = theme.colors.orange[300];
-
-  const {
-    getInputProps,
-    getRootProps,
-    getTrackProps,
-    getInnerTrackProps,
-    getThumbProps,
-    getMarkerProps,
-  } = useSlider(props);
-
-  const input = getInputProps();
-  const root = getRootProps();
-  const track = getTrackProps();
-  const innerTrack = getInnerTrackProps();
-  const thumb = getThumbProps();
-
   return (
-    <Box h={10} w="100%" {...root}>
-      <input {...input} />
-      <Box {...track}>
-        <Box {...innerTrack} />
-      </Box>
-      <Box
-        {...thumb}
-        boxSize={8}
-        boxShadow="none"
-        border="2px"
-        borderColor="black"
-        transition="width 0.2s, height 0.2s"
-        transformOrigin="center"
-        transform="translateY(-50%) "
-        _hover={{
-          boxShadow: `0 0 0 1px ${hoverColor}`,
-        }}
-        _active={{
-          transform: "translateY(-50%) translateX(+4px)",
-          boxSize: 8,
-          boxShadow: "none !important",
-        }}
-        _focus={{
-          boxShadow: `0 0 0 1px ${hoverColor}, 0 0 0 4px ${focusColor}`,
-        }}
+    <HStack spacing={0}>
+      <Input
+        defaultValue={props.value}
+        onChange={props.inputHandler}
+        type="text"
+        w={100}
+        step="0.01"
       />
-    </Box>
+      <Box px={5} w="100%" d="flex" align="center">
+        <Slider
+          value={props.value}
+          onChange={props.sliderHandler}
+          step={0.01}
+          min={props.min}
+          max={props.max}
+          focusThumbOnChange={false}
+        >
+          <SliderTrack>
+            <SliderFilledTrack />
+          </SliderTrack>
+          <SliderThumb boxSize={10} />
+        </Slider>
+      </Box>
+    </HStack>
   );
 };
 
 /**
- * This component exists only because I couldn't get the Chakra slider to work with the State provider.
+ * Props:
+ * - inputHandler
+ * - value
+ * - sliderHandler
+ * - min
+ * - max
  */

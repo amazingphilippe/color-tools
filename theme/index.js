@@ -6,7 +6,9 @@ import Select from "./components/select";
 import Button from "./components/button";
 import Editable from "./components/editable";
 import Tabs from "./components/tabs";
+import Textarea from "./components/textarea";
 import Slider from "./components/slider";
+import Switch from "./components/switch";
 import FormLabel from "./components/formLabel";
 import Form from "./components/form";
 
@@ -32,7 +34,9 @@ const overrides = {
     Button,
     Editable,
     Tabs,
+    Textarea,
     Slider,
+    Switch,
     FormLabel,
     Form,
   },

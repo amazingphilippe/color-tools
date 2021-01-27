@@ -10,6 +10,7 @@ import {
 } from "react-icons/ri";
 import { useStateValue } from "../../utils/state";
 import { CopyToClipboard } from "react-copy-to-clipboard";
+import { SAPCContrast } from "../../utils/APCAsRGB.98";
 
 const Swatch = (props) => {
   const [state] = useStateValue();
@@ -49,7 +50,7 @@ const Swatch = (props) => {
     >
       {color === props.swatch.hex && <RiSeedlingLine color={bw} size="2em" />}
 
-      {clips && props.index !== props.scale.length - 1 && (
+      {!state.settings.zen && clips && props.index !== props.scale.length - 1 && (
         <HStack m={0} align="center">
           <Flex color={bw} align="center" justify="center" boxSize={5}>
             <RiErrorWarningLine color={bw} />
@@ -67,14 +68,16 @@ const Swatch = (props) => {
         w="100%"
         mt="auto"
       >
-        <HStack m={0} align="center">
-          <Flex color={bw} align="center" justify="center" boxSize={5}>
-            <RiSunLine />
-          </Flex>
-          <Text fontSize="xs" fontFamily="mono" fontWeight="bold" color={bw}>
-            {luminance}
-          </Text>
-        </HStack>
+        {!state.settings.zen && (
+          <HStack m={0} align="center">
+            <Flex color={bw} align="center" justify="center" boxSize={5}>
+              <RiSunLine />
+            </Flex>
+            <Text fontSize="xs" fontFamily="mono" fontWeight="bold" color={bw}>
+              {luminance}
+            </Text>
+          </HStack>
+        )}
         <CopyToClipboard text={color}>
           <HStack
             m={0}
@@ -103,20 +106,26 @@ const Swatch = (props) => {
             </Text>
           </HStack>
         </CopyToClipboard>
-        <BWCheck
-          color={color}
-          against={
-            (chroma.valid(state.settings.onLight) && state.settings.onLight) ||
-            "white"
-          }
-        />
-        <BWCheck
-          color={color}
-          against={
-            (chroma.valid(state.settings.onDark) && state.settings.onDark) ||
-            "black"
-          }
-        />
+        {state.settings.showTests && (
+          <>
+            <BWCheck
+              color={color}
+              against={
+                (chroma.valid(state.settings.onLight) &&
+                  state.settings.onLight) ||
+                "white"
+              }
+            />
+            <BWCheck
+              color={color}
+              against={
+                (chroma.valid(state.settings.onDark) &&
+                  state.settings.onDark) ||
+                "black"
+              }
+            />
+          </>
+        )}
       </VStack>
     </VStack>
   );

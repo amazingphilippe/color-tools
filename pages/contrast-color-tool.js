@@ -1,10 +1,18 @@
 import { useStateValue } from "../utils/state";
-import { colorSpaceNames, colorSpaces } from "../utils/spaces";
+import { colorSpaceNames, colorSpaces, specs } from "../utils/spaces";
 import chroma from "chroma-js";
+import namer from "color-namer";
 import { useEffect, useState } from "react";
+import { CopyToClipboard } from "react-copy-to-clipboard";
 import { Scale } from "../components/Scale";
 import Swatch from "../components/Swatch";
-import { RiAddLine, RiArrowDownSFill, RiDeleteBin2Line } from "react-icons/ri";
+import {
+  RiAddLine,
+  RiArrowDownSFill,
+  RiArrowDownLine,
+  RiDeleteBin2Line,
+  RiRefreshLine,
+} from "react-icons/ri";
 import { HexInput } from "../components/HexInput";
 import { Slider } from "../components/Slider";
 import { createScale, updateValues } from "../utils/creator";
@@ -34,8 +42,16 @@ import {
   VisuallyHidden,
   RadioGroup,
   useRadioGroup,
+  Icon,
+  Checkbox,
+  Switch,
+  Button,
+  Textarea,
+  Spacer,
 } from "@chakra-ui/react";
 import { RadioSwatch } from "../components/RadioSwatch";
+import { getSVG } from "../utils/getSVG";
+import { containsData } from "../utils/containsData";
 
 export const ContrastColorTool = () => {
   // State containing the settings and swatches
@@ -54,16 +70,17 @@ export const ContrastColorTool = () => {
 
   // To display the current scale and swatch in the current tab
   const swatch = state.swatches[state.controls];
-  console.log(state.swatches, state.controls);
+  //console.log(state.swatches, state.controls);
   const scale = swatch.scale.hex;
 
   // State handlers
   const handleChangeSettingValue = (e) => {
+    let val = e.target.type === "checkbox" ? e.target.checked : e.target.value;
     dispatch({
       type: "mergeValue",
       data: {
         settings: {
-          [e.target.id]: e.target.value,
+          [e.target.id]: val,
         },
       },
     });
@@ -164,7 +181,7 @@ export const ContrastColorTool = () => {
   };
 
   return (
-    <VStack align="start" spacing={4} mx="auto" bg="gray.100">
+    <VStack align="start" spacing={0} mx="auto">
       <VStack align="start" w="100%" p={4}>
         <Heading as="h1" size="xl">
           Color Design Scale (CDS)
@@ -224,147 +241,190 @@ export const ContrastColorTool = () => {
             })}
           </Select>
         </FormControl>
-      </VStack>
-      <HStack alignSelf="stretch" spacing={0}>
-        <HStack
-          variant="palette"
-          width="75%"
-          bg="gray.100"
-          alignSelf="stretch"
-          d="flex"
-          flexDirection="column"
-          role="tablist"
-          spacing={0}
-        >
-          <RadioGroup w="100%" d="flex" {...group}>
-            {Object.keys(state.swatches).map((value, key) => {
-              const radio = getRadioProps({ value });
-              return (
-                <RadioSwatch
-                  key={key}
-                  color={state.swatches[value].hex}
-                  {...radio}
-                >
-                  <VisuallyHidden>{state.swatches[value].name}</VisuallyHidden>
-                </RadioSwatch>
-              );
-            })}
-            <IconButton
-              aria-label="Add swatch"
-              size="lg"
-              icon={<RiAddLine size="1.5em" />}
-              borderRadius="0"
-              m={2}
-              mt={0}
-              ml="auto"
+        <HStack align="baseline">
+          <FormControl>
+            <FormLabel>Contrast checks</FormLabel>
+            <Switch
+              defaultIsChecked={true}
+              id="showTests"
               colorScheme="yellow"
-              onClick={() => handleAddSwatch()}
+              value={state.settings.showTests}
+              onChange={(e) => handleChangeSettingValue(e)}
             />
-          </RadioGroup>
-          <HStack
-            w="100%"
-            justifyContent="stretch"
-            height="100%"
-            spacing={0}
-            p={0}
-            flexWrap="wrap"
-            id={`swatch-panel-${state.controls}`}
-            role="tabpanel"
-          >
-            {scale.map((color, i) => {
-              return (
-                <Box
-                  key={i}
-                  h="100%"
-                  flexBasis={24}
-                  flexGrow={1}
-                  flexShrink={0}
-                >
-                  <Swatch
-                    color={color}
-                    index={i}
-                    scale={scale}
-                    swatch={swatch}
-                  />
-                </Box>
-              );
-            })}
-          </HStack>
+          </FormControl>
+          <FormControl minW="200px" width="auto" id="contrastMode">
+            <FormLabel>Contrast tests</FormLabel>
+            <Select
+              defaultValue={state.settings.contrastMode}
+              variant="outline"
+              icon={<RiArrowDownSFill />}
+              onChange={(e) => handleChangeSettingValue(e)}
+            >
+              {Object.keys(specs).map((key, i) => {
+                return (
+                  <option key={key} value={key}>
+                    {specs[key].name}
+                  </option>
+                );
+              })}
+            </Select>
+          </FormControl>
         </HStack>
-        <Tabs
-          width="25%"
-          bg="gray.100"
-          alignSelf="stretch"
-          d="flex"
-          flexDirection="column"
+        <FormControl>
+          <FormLabel>Zen mode</FormLabel>
+          <FormHelperText>Hide all color information</FormHelperText>
+          <Switch
+            id="zen"
+            colorScheme="yellow"
+            value={state.settings.zen}
+            onChange={(e) => handleChangeSettingValue(e)}
+          />
+        </FormControl>
+      </VStack>
+      <HStack
+        variant="palette"
+        width="100%"
+        alignSelf="stretch"
+        d="flex"
+        flexDirection="column"
+        role="tablist"
+        spacing={0}
+      >
+        <RadioGroup w="100%" d="flex" {...group}>
+          {Object.keys(state.swatches).map((value, key) => {
+            const radio = getRadioProps({ value });
+            return (
+              <RadioSwatch
+                key={key}
+                color={state.swatches[value].hex}
+                {...radio}
+              >
+                <VisuallyHidden>{state.swatches[value].name}</VisuallyHidden>
+                {radio.isChecked && <RiArrowDownLine size="2em" />}
+              </RadioSwatch>
+            );
+          })}
+          <IconButton
+            aria-label="Add swatch"
+            size="lg"
+            icon={<RiAddLine size="1.5em" />}
+            borderRadius="0"
+            m={2}
+            mt={0}
+            ml="auto"
+            colorScheme="yellow"
+            onClick={() => handleAddSwatch()}
+          />
+        </RadioGroup>
+        <HStack
+          w="100%"
+          justifyContent="stretch"
+          height="100%"
+          spacing={0}
+          p={0}
+          flexWrap="wrap"
+          id={`swatch-panel-${state.controls}`}
+          role="tabpanel"
         >
-          <TabList>
-            <Tab>Swatch</Tab>
-            <Tab>Scale</Tab>
-          </TabList>
+          {scale.map((color, i) => {
+            return (
+              <Box key={i} h="100%" flexBasis={24} flexGrow={1} flexShrink={0}>
+                <Swatch color={color} index={i} scale={scale} swatch={swatch} />
+              </Box>
+            );
+          })}
+        </HStack>
+      </HStack>
 
-          <TabPanels bg="white" flexGrow={1}>
-            <TabPanel>
-              <VStack spacing={8} align="start">
-                <Flex w="100%">
-                  <Editable
-                    value={state.swatches[state.controls].name}
-                    flexGrow="1"
-                    d="flex"
-                    alignItems="center"
-                    fontSize="2xl"
-                    fontWeight="bold"
-                  >
-                    <EditablePreview />
-                    <EditableInput
-                      onChange={(e) => {
-                        dispatch({
-                          type: "renameSwatch",
-                          data: { old: state.controls, new: e.target.value },
-                        });
-                      }}
-                    />
-                  </Editable>
-                  {Object.keys(state.swatches).length > 1 && (
-                    <IconButton
-                      ml={2}
-                      size="lg"
-                      colorScheme="red"
-                      variant="ghost"
-                      borderRadius={0}
-                      aria-label="Delete swatch"
-                      icon={<RiDeleteBin2Line size="1.5em" />}
-                      value={state.controls}
-                      onClick={() => handleRemoveSwatch()}
-                    />
-                  )}
-                </Flex>
-                <FormControl id={`${state.controls}-hex`}>
-                  <FormLabel>Hex</FormLabel>
-                  <HexInput
-                    isInvalid={
-                      !chroma.valid(state.swatches[state.controls].hex)
-                    }
-                    value={state.swatches[state.controls].hex}
-                    onChange={(e) => handleChangeHex(state.controls, e)}
-                    type="text"
-                    w={100}
-                  />
-                </FormControl>
-                <Box alignSelf="stretch">
-                  <Slider
-                    controls={state.controls}
-                    mode={state.settings.mode}
-                    values={state.swatches[state.controls].values}
-                  />
-                </Box>
-              </VStack>
-            </TabPanel>
-            <TabPanel>
-              <Scale swatch={state.controls} />
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
+      <Flex w="100%" p={4} bg="white">
+        <Editable
+          value={state.swatches[state.controls].name}
+          flexGrow="1"
+          d="flex"
+          alignItems="center"
+          fontSize="2xl"
+          fontWeight="bold"
+        >
+          <EditablePreview />
+          <EditableInput
+            onChange={(e) => {
+              dispatch({
+                type: "renameSwatch",
+                data: { old: state.controls, new: e.target.value },
+              });
+            }}
+          />
+        </Editable>
+        <IconButton
+          ml={2}
+          size="lg"
+          variant="ghost"
+          borderRadius={0}
+          aria-label="Regenerate name"
+          icon={<RiRefreshLine size="1.5em" />}
+          value={state.controls}
+          onClick={() => {
+            dispatch({
+              type: "renameSwatch",
+              data: {
+                old: state.controls,
+                new: namer(state.swatches[state.controls].hex).ntc[0].name,
+              },
+            });
+          }}
+        />
+        {Object.keys(state.swatches).length > 1 && (
+          <IconButton
+            ml={2}
+            size="lg"
+            colorScheme="red"
+            variant="ghost"
+            borderRadius={0}
+            aria-label="Delete swatch"
+            icon={<RiDeleteBin2Line size="1.5em" />}
+            value={state.controls}
+            onClick={() => handleRemoveSwatch()}
+          />
+        )}
+      </Flex>
+
+      <HStack w="100%" spacing={8} p={4} bg="white" align="start">
+        <VStack spacing={8} align="start" w={80}>
+          <Heading as="h2" size="md">
+            Seed
+          </Heading>
+          <FormControl id={`${state.controls}-hex`}>
+            <FormLabel>Hex</FormLabel>
+            <HexInput
+              isInvalid={!chroma.valid(state.swatches[state.controls].hex)}
+              value={state.swatches[state.controls].hex}
+              onChange={(e) => handleChangeHex(state.controls, e)}
+              type="text"
+              w={100}
+            />
+          </FormControl>
+          <Box alignSelf="stretch">
+            <Slider
+              controls={state.controls}
+              mode={state.settings.mode}
+              values={state.swatches[state.controls].values}
+            />
+          </Box>
+        </VStack>
+        <Scale swatch={state.controls} w={80} />
+        <VStack align="start" w={80}>
+          <Heading as="h2" size="md" mb={8}>
+            Export
+          </Heading>
+          <CopyToClipboard
+            text={getSVG(state.swatches[state.controls].scale.hex)}
+          >
+            <Button>Copy SVG</Button>
+          </CopyToClipboard>
+          <CopyToClipboard text={state.swatches[state.controls].scale.hex}>
+            <Button>Copy colors</Button>
+          </CopyToClipboard>
+        </VStack>
       </HStack>
     </VStack>
   );

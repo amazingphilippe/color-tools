@@ -21,6 +21,8 @@ export const initialState = {
     onDark: "#000000",
     mode: "lch",
     showTests: true,
+    zen: true,
+    contrastMode: "2.1",
   },
   swatches: {
     color: {
@@ -35,7 +37,11 @@ export const initialState = {
         hex: ["#121a23", "#263648", "#495665"],
         parameters: {
           dark: "1",
+          darkSatShift: 0.3,
+          darkHueShift: 0,
           light: "1",
+          lightSatShift: 0,
+          lightHueShift: 0.3,
           contrast: "1.6",
         },
       },
@@ -56,6 +62,15 @@ export function reducer(state, action) {
       });
       //console.log(action.type, state.swatches);
       return mergedStateValues;
+    case "importSwatch":
+      const importedSwatch = merge(state, {
+        swatches: {
+          ...action.data,
+        },
+      });
+
+      console.log(importedSwatch);
+      return importedSwatch;
     case "addSwatch":
       const newSwatch = createSwatch(state.settings.mode);
       const addedSwatch = merge(state, {

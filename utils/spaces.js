@@ -39,3 +39,8 @@ export const colorSpaces = {
     [0, 255],
   ],
 };
+
+export const specs = {
+  3: { name: "WCAG 3.0 BETA" },
+  2.1: { name: "WCAG 2.1" },
+};

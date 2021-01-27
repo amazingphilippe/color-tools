@@ -12,13 +12,11 @@ export default {
       borderColor: "black",
       transition: "width 0.2s, height 0.2s",
       transformOrigin: "center",
-      transform: "translateY(-50%) ",
+      transform: "translateY(-50%)",
       _hover: {
         boxShadow: `0 0 0 1px ${hoverColor}`,
       },
       _active: {
-        transform: "translateY(-50%) translateX(+4px)",
-        boxSize: 8,
         boxShadow: "none !important",
       },
       _focus: {

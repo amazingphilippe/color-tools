@@ -1,4 +1,7 @@
 export default {
+  baseStyle: {
+    borderRadius: "none",
+  },
   variants: {
     palette: {
       boxSize: 12,
